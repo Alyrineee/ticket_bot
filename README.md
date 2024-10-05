@@ -19,8 +19,9 @@ git clone `https://github.com/Alyrineee/ticket_bot.githttps://github.com/Alyrine
 <h2>4. Создание daemon-а</h2>
 
 * Создайте `sudo nano /lib/systemd/system/example_bot.service`
-</br>
+
 `example_bot.service` назовите так как удобно
+
 * Напишите вот этот код
     ```
     [Unit]
@@ -38,10 +39,13 @@ git clone `https://github.com/Alyrineee/ticket_bot.githttps://github.com/Alyrine
     [Install] 
     WantedBy=multi-user.target
     ```
+    
 * Запуск daemon-a  
     ```
     sudo systemctl enable example_bot
     sudo systemctl start example_bot
     ```
+    
 <h2>5. Запуск бота🚀</h2>
+
 `python3 имя_файла.ру`
