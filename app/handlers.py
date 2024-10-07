@@ -54,15 +54,17 @@ async def glasses(message: Message, state: FSMContext):
 async def glasses_state(message: Message, state: FSMContext):
     if message.photo and message.caption:
         await message.bot.send_photo(
-            "-1002189126528",
+            "-4560999862",
             message.photo[-1].file_id,
             caption=f"Новое обращение от "
-                    f"{message.chat.id} "
-                    f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-                    + message.caption,
+            f"{message.chat.id} "
+            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+            + message.caption,
             reply_markup=await kb.inline_ban(message.chat.id),
         )
         await state.clear()
+        await message.reply("Сообщение отправлено!")
+
     else:
         await message.reply("Разрешены только картинки c текстом")
 
@@ -78,8 +80,20 @@ async def query_state(message: Message, state: FSMContext):
             reply_markup=await kb.inline_ban(message.chat.id),
         )
         await state.clear()
+        await message.reply("Сообщение отправлено!")
+    elif message.photo and message.caption:
+        await message.bot.send_photo(
+            "1711546279",
+            message.photo[-1].file_id,
+            caption=f"Новое обращение от "
+            f"{message.chat.id} "
+            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+            + message.caption,
+            reply_markup=await kb.inline_ban(message.chat.id),
+        )
+
     else:
-        await message.reply("Разрешен только текст")
+        await message.reply("Разрешен только текст или фото с текстом")
 
 
 @router.message(Command("ban"))
@@ -101,13 +115,16 @@ async def unban(message: Message):
 @router.callback_query(F.data.split("_")[0] == "ban")
 async def inline_ban(callback: CallbackQuery):
     if callback.from_user.id == 5253078721 or callback.from_user.id == 1711546279:
-        await callback.answer("Ты забанил юзера", show_alert=True)
         try:
-            await callback.answer("Ты забанил юзера", show_alert=True)
-            cursor.execute(
-                f"INSERT INTO bans VALUES ({int(callback.data.split('_')[1])})"
-            )
-            conn.commit()
+            if int(callback.data.split("_")[1]) != 5253078721:
+                await callback.answer("Ты забанил юзера", show_alert=True)
+                cursor.execute(
+                    f"INSERT INTO bans VALUES "
+                    f"({int(callback.data.split('_')[1])})"
+                )
+                conn.commit()
+            else:
+                await callback.answer("пососи ааххахахахахах", show_alert=True)
         except:
             await callback.answer("Юзер уже в бане", show_alert=True)
 

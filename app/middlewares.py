@@ -19,7 +19,7 @@ class BanMiddleware(BaseMiddleware):
         check_user = cursor.execute(
             f"SELECT id FROM bans WHERE id={user_id}"
         ).fetchone()
-        if event.chat.type == 'private':
+        if event.chat.type == "private":
             if check_user:
                 return await event.answer("Извини, ты в бане : (")
             return await handler(event, data)
