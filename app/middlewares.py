@@ -21,5 +21,5 @@ class BanMiddleware(BaseMiddleware):
         ).fetchone()
         if event.chat.type == "private":
             if check_user:
-                return await event.answer("Извини, ты в бане : (")
+                return await event.answer("Извини, ты в бане : (\n\nРазабан: @FondyEzh")
             return await handler(event, data)

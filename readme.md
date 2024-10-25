@@ -1,7 +1,7 @@
 <h1>Ticket Bot 58</h1>
 <h2>1. Клонирование</h2>
 
-git clone `https://github.com/Alyrineee/ticket_bot.githttps://github.com/Alyrineee/ticket_bot.git`
+`git clone https://github.com/Alyrineee/ticket_bot.git`
 
 <h2>2. Создание venv</h2>
 
