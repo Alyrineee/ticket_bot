@@ -54,7 +54,7 @@ async def glasses(message: Message, state: FSMContext):
 async def glasses_state(message: Message, state: FSMContext):
     if message.photo and message.caption:
         await message.bot.send_photo(
-            "-4560999862",
+            "-1002437178158",
             message.photo[-1].file_id,
             caption=f"Новое обращение от "
             f"{message.chat.id} "
