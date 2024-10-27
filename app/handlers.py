@@ -15,13 +15,12 @@ router.message.outer_middleware(BanMiddleware())
 
 class TicketsState(StatesGroup):
     query = State()
-    glasses = State()
 
 
 @router.message(CommandStart())
 async def cmd_start(message: Message):
     await message.answer(
-        "Привет! Тут ты можешь предложить идею или сообщить о нехватке стаканчиков",
+        "Привет! Тут ты можешь предложить идею",
         reply_markup=kb.main,
     )
 
@@ -37,36 +36,6 @@ async def meet(message: Message, state: FSMContext):
         "Необходимость - если идея проходит через первичные фильтры, то она публикуется в наш открытый телеграм-канал, где проходит голосование о необходимости ее реализации.\n"
         "За отправку неприличных и подобных идей администратор имеет право вас заблокировать."
     )
-
-
-@router.message(F.text == "Сообщить о нехватке стаканчиков")
-async def glasses(message: Message, state: FSMContext):
-    await state.set_state(TicketsState.glasses)
-    await message.answer(
-        "Привет! Если ты нашел кулер без стаканчиков, "
-        "скинь фото их отсутствия и где находится кулер.\n"
-        "За отправку ложных или не связанных с опцией сведений "
-        "администратор имеет право вас заблокировать."
-    )
-
-
-@router.message(TicketsState.glasses)
-async def glasses_state(message: Message, state: FSMContext):
-    if message.photo and message.caption:
-        await message.bot.send_photo(
-            "-1002437178158",
-            message.photo[-1].file_id,
-            caption=f"Новое обращение от "
-            f"{message.chat.id} "
-            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-            + message.caption,
-            reply_markup=await kb.inline_ban(message.chat.id),
-        )
-        await state.clear()
-        await message.reply("Сообщение отправлено!")
-
-    else:
-        await message.reply("Разрешены только картинки c текстом")
 
 
 @router.message(TicketsState.query)
