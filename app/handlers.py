@@ -38,9 +38,25 @@ async def meet(message: Message, state: FSMContext):
     )
 
 
+@router.message(F.text == "Предложить новость")
+async def meet(message: Message, state: FSMContext):
+    await state.set_state(TicketsState.query)
+    await message.answer(
+        "Здесь вы можете публиковать важные и официальные новости от учителей, а также другие актуальные события школьной жизни.\n"
+        "Пожалуйста, придерживайтесь строгой серьезности в сообщениях: за публикацию несоответствующего контента предусмотрен бан."
+    )
+
+
 @router.message(TicketsState.query)
 async def query_state(message: Message, state: FSMContext):
     if message.text:
+        await message.bot.send_message(
+            "5253078721",
+            f"Новое обращение от {message.chat.id} "
+            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+            + str(message.text),
+            reply_markup=await kb.inline_ban(message.chat.id),
+        )
         await message.bot.send_message(
             "1711546279",
             f"Новое обращение от {message.chat.id} "
@@ -52,7 +68,7 @@ async def query_state(message: Message, state: FSMContext):
         await message.reply("Сообщение отправлено!")
     elif message.photo and message.caption:
         await message.bot.send_photo(
-            "1711546279",
+            "5253078721",
             message.photo[-1].file_id,
             caption=f"Новое обращение от "
             f"{message.chat.id} "
@@ -60,6 +76,15 @@ async def query_state(message: Message, state: FSMContext):
             + message.caption,
             reply_markup=await kb.inline_ban(message.chat.id),
         )
+        await message.bot.send_message(
+            "1711546279",
+            f"Новое обращение от {message.chat.id} "
+            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+            + str(message.text),
+            reply_markup=await kb.inline_ban(message.chat.id),
+        )
+        await state.clear()
+        await message.reply("Сообщение отправлено!")
 
     else:
         await message.reply("Разрешен только текст или фото с текстом")

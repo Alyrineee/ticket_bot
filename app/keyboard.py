@@ -9,6 +9,7 @@ main = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Предложить идею"),
+            KeyboardButton(text="Предложить новость"),
         ]
     ],
     resize_keyboard=True,
