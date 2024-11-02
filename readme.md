@@ -15,37 +15,7 @@
 * Переименуйте файл `.env.template` на `.env`
  
 * Измените `TOKEN` на **свой**
-
-<h2>4. Создание daemon-а</h2>
-
-* Создайте `sudo nano /lib/systemd/system/example_bot.service`
-
-`example_bot.service` назовите так как удобно
-
-* Напишите вот этот код
-    ```
-    [Unit]
-    Description=Example - Telegram Bot \\ можете указать название своего бота
     
-    After=syslog.target 
-    After=network.target
-    [Service] 
-    Type=simple 
-    WorkingDirectory=/home/имя_папки/
-    ExecStart=/usr/bin/python3 /home/имя_папки/имя_файла.py \\ Здесь и выше укажите названия, которые установили для директории и файла с ботом.
-    
-    RestartSec=60 
-    Restart=always
-    [Install] 
-    WantedBy=multi-user.target
-    ```
-    
-* Запуск daemon-a  
-    ```
-    sudo systemctl enable example_bot
-    sudo systemctl start example_bot
-    ```
-    
-<h2>5. Запуск бота🚀</h2>
+<h2>4. Запуск бота🚀</h2>
 
 `python3 имя_файла.ру`

@@ -17,6 +17,7 @@ router.message.outer_middleware(BanMiddleware())
 
 class TicketsState(StatesGroup):
     query = State()
+    reject = State()
 
 
 @router.message(CommandStart())
@@ -139,9 +140,19 @@ async def inline_accept(callback: CallbackQuery):
 
 
 @router.callback_query(F.data.split("_")[0] == "reject")
-async def inline_reject(callback: CallbackQuery):
+async def inline_reject_first(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
-    await callback.bot.send_message(
-        callback.data.split("_")[1],
-        f"Привет, твою идею #{callback.data.split("_")[2]} отклонили: (",
+    await state.update_data(msg_id=callback.data.split("_")[2], user_id=callback.data.split("_")[1])
+    await state.set_state(TicketsState.reject)
+    await callback.bot.send_message(callback.message.chat.id, "Напиши причину отказа")
+
+
+@router.message(TicketsState.reject)
+async def inline_reject_second(message: Message, state: FSMContext):
+    data = await state.get_data()
+    await message.bot.send_message(
+        data["user_id"],
+        f"Привет, твою идею #{data["msg_id"]} отклонили: (\n\n"
+            f"Причина: {message.text}"
     )
+    await state.clear()
