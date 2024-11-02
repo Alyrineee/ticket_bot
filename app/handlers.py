@@ -1,4 +1,6 @@
 import sqlite3
+import random
+
 from aiogram import F, Router
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
@@ -49,24 +51,28 @@ async def meet(message: Message, state: FSMContext):
 
 @router.message(TicketsState.query)
 async def query_state(message: Message, state: FSMContext):
+    msg_id = random.randint(0, 100000000)
     if message.text:
+        await state.clear()
+        await message.answer(f"Сообщение #{msg_id} отправлено!")
         await message.bot.send_message(
             "5253078721",
             f"Новое обращение от {message.chat.id} "
             f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
             + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id),
+            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
         )
         await message.bot.send_message(
             "1711546279",
             f"Новое обращение от {message.chat.id} "
             f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
             + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id),
+            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
         )
-        await state.clear()
-        await message.reply("Сообщение отправлено!")
+
     elif message.photo and message.caption:
+        await state.clear()
+        await message.answer(f"Сообщение #{msg_id} отправлено!")
         await message.bot.send_photo(
             "5253078721",
             message.photo[-1].file_id,
@@ -74,17 +80,15 @@ async def query_state(message: Message, state: FSMContext):
             f"{message.chat.id} "
             f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
             + message.caption,
-            reply_markup=await kb.inline_ban(message.chat.id),
+            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
         )
         await message.bot.send_message(
             "1711546279",
             f"Новое обращение от {message.chat.id} "
             f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
             + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id),
+            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
         )
-        await state.clear()
-        await message.reply("Сообщение отправлено!")
 
     else:
         await message.reply("Разрешен только текст или фото с текстом")
@@ -113,8 +117,7 @@ async def inline_ban(callback: CallbackQuery):
             if int(callback.data.split("_")[1]) != 5253078721:
                 await callback.answer("Ты забанил юзера", show_alert=True)
                 cursor.execute(
-                    f"INSERT INTO bans VALUES "
-                    f"({int(callback.data.split('_')[1])})"
+                    f"INSERT INTO bans VALUES " f"({int(callback.data.split('_')[1])})"
                 )
                 conn.commit()
             else:
@@ -124,3 +127,21 @@ async def inline_ban(callback: CallbackQuery):
 
     else:
         await callback.answer("У тебя нет прав", show_alert=True)
+
+
+@router.callback_query(F.data.split("_")[0] == "accept")
+async def inline_accept(callback: CallbackQuery):
+    await callback.answer()
+    await callback.bot.send_message(
+        callback.data.split("_")[1],
+        f"Привет, твою идею #{callback.data.split("_")[2]} одобрили!",
+    )
+
+
+@router.callback_query(F.data.split("_")[0] == "reject")
+async def inline_reject(callback: CallbackQuery):
+    await callback.answer()
+    await callback.bot.send_message(
+        callback.data.split("_")[1],
+        f"Привет, твою идею #{callback.data.split("_")[2]} отклонили: (",
+    )
