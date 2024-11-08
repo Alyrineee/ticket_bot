@@ -13,11 +13,13 @@ router = Router()
 conn = sqlite3.connect("users.db", check_same_thread=False)
 cursor = conn.cursor()
 router.message.outer_middleware(BanMiddleware())
-
+admins = [1711546279, 5253078721]
 
 class TicketsState(StatesGroup):
-    query = State()
+    idea = State()
+    news = State()
     reject = State()
+
 
 
 @router.message(CommandStart())
@@ -30,7 +32,7 @@ async def cmd_start(message: Message):
 
 @router.message(F.text == "Предложить идею")
 async def meet(message: Message, state: FSMContext):
-    await state.set_state(TicketsState.query)
+    await state.set_state(TicketsState.idea)
     await message.answer(
         "Привет! Напиши ниже идею, которую хочешь реализовать в нашей школе. "
         "Помни о правилах фильтрации через которые будет проходить твоя идея:\n"
@@ -43,56 +45,50 @@ async def meet(message: Message, state: FSMContext):
 
 @router.message(F.text == "Предложить новость")
 async def meet(message: Message, state: FSMContext):
-    await state.set_state(TicketsState.query)
+    await state.set_state(TicketsState.news)
     await message.answer(
         "Здесь вы можете публиковать важные и официальные новости от учителей, а также другие актуальные события школьной жизни.\n"
         "Пожалуйста, придерживайтесь строгой серьезности в сообщениях: за публикацию несоответствующего контента предусмотрен бан."
     )
 
 
-@router.message(TicketsState.query)
+@router.message(TicketsState.idea)
+@router.message(TicketsState.news)
 async def query_state(message: Message, state: FSMContext):
     msg_id = random.randint(0, 100000000)
-    if message.text:
-        await state.clear()
-        await message.answer(f"Сообщение #{msg_id} отправлено!")
-        await message.bot.send_message(
-            "5253078721",
-            f"Новое обращение от {message.chat.id} "
-            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-            + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
-        )
-        await message.bot.send_message(
-            "1711546279",
-            f"Новое обращение от {message.chat.id} "
-            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-            + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
-        )
-
-    elif message.photo and message.caption:
-        await state.clear()
-        await message.answer(f"Сообщение #{msg_id} отправлено!")
-        await message.bot.send_photo(
-            "5253078721",
-            message.photo[-1].file_id,
-            caption=f"Новое обращение от "
-            f"{message.chat.id} "
-            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-            + message.caption,
-            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
-        )
-        await message.bot.send_message(
-            "1711546279",
-            f"Новое обращение от {message.chat.id} "
-            f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
-            + str(message.text),
-            reply_markup=await kb.inline_ban(message.chat.id, msg_id),
-        )
-
-    else:
-        await message.reply("Разрешен только текст или фото с текстом")
+    type_of_query = "Новое обращение"
+    current_state = await state.get_state()
+    if current_state == TicketsState.news:
+        admins.append(807240611)
+        type_of_query = "Новая новость"
+    for admin_id in admins:
+        try:
+            if message.text:
+                await state.clear()
+                await message.bot.send_message(
+                    admin_id,
+                    f"{type_of_query} от {message.chat.id} "
+                    f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+                    + str(message.text),
+                    reply_markup=await kb.inline_ban(message.chat.id, msg_id),
+                )
+            elif message.photo and message.caption:
+                await state.clear()
+                await message.bot.send_photo(
+                    admin_id,
+                    message.photo[-1].file_id,
+                    caption=f"{type_of_query}  от "
+                    f"{message.chat.id} "
+                    f"(@{str(message.chat.username) + ', ' + str(message.chat.first_name) + ' ' + str(message.chat.last_name)})\n\n"
+                    + message.caption,
+                    reply_markup=await kb.inline_ban(message.chat.id, msg_id),
+                )
+            else:
+                await message.reply("Разрешен только текст или фото с текстом")
+                break
+        except:
+            print("Skipping...")
+    await message.answer(f"Сообщение #{msg_id} отправлено!")
 
 
 @router.message(Command("ban"))
