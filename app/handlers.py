@@ -61,6 +61,7 @@ async def query_state(message: Message, state: FSMContext):
     if current_state == TicketsState.news:
         admins.append(807240611)
         type_of_query = "Новая новость"
+    print(admins)
     for admin_id in admins:
         try:
             if message.text:
