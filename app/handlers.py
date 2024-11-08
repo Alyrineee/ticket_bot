@@ -61,7 +61,6 @@ async def query_state(message: Message, state: FSMContext):
     if current_state == TicketsState.news:
         admins.append(807240611)
         type_of_query = "Новая новость"
-    print(admins)
     for admin_id in admins:
         try:
             if message.text:
@@ -110,7 +109,7 @@ async def unban(message: Message):
 
 @router.callback_query(F.data.split("_")[0] == "ban")
 async def inline_ban(callback: CallbackQuery):
-    if callback.from_user.id == 5253078721 or callback.from_user.id == 1711546279:
+    if callback.from_user.id in admins:
         try:
             if int(callback.data.split("_")[1]) != 5253078721:
                 await callback.answer("Ты забанил юзера", show_alert=True)
@@ -119,7 +118,7 @@ async def inline_ban(callback: CallbackQuery):
                 )
                 conn.commit()
             else:
-                await callback.answer("пососи ааххахахахахах", show_alert=True)
+                await callback.answer("Его нельзя забанить", show_alert=True)
         except:
             await callback.answer("Юзер уже в бане", show_alert=True)
 
